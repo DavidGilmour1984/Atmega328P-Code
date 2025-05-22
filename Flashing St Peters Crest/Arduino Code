@@ -1,54 +1,53 @@
+// Function declaration for setPair
+void setPair(int pin1, int pin2, bool state = true);
+
 void setup() {
-  // Set all used pins as OUTPUT
   pinMode(2, OUTPUT);   // Owl Eye 1
   pinMode(3, OUTPUT);   // Owl Eye 2
   for (int pin = 4; pin <= 13; pin++) {
     pinMode(pin, OUTPUT);
   }
-
-  // Optional: seed random for twinkle variation
-  randomSeed(analogRead(A0));
+  randomSeed(analogRead(A0)); // For twinkling variation
 }
 
 void loop() {
-  eyeBlink();
   edgeSweepForward();
-  eyeFlicker();
   edgeSweepReverse();
+  eyeFlicker(); // Between sweep and next effect
+
   edgePulse();
+  eyeFlicker(); // Between pulse and next effect
+
   eyeGlare();
+
   sparkleChase();
+  eyeFlicker(); // Between sparkle and next effect
+
   alternatingFlash();
+  eyeFlicker(); // Between alternating and twinkling
+
   twinklingStars();
+  eyeFlicker(); // Before final reset
+
   resetAll();
-  delay(500);
+  delay(250); // Originally 500
 }
 
-// Owl eyes blink slowly together
+// 🔁 Helper function for paired LEDs
+void setPair(int pin1, int pin2, bool state) {
+  digitalWrite(pin1, state ? HIGH : LOW);
+  digitalWrite(pin2, state ? HIGH : LOW);
+}
+
+// 🦉 Eye-only Effects
 void eyeBlink() {
   for (int i = 0; i < 3; i++) {
     digitalWrite(2, HIGH);
     digitalWrite(3, HIGH);
-    delay(200);
+    delay(100); // Originally 200
     digitalWrite(2, LOW);
     digitalWrite(3, LOW);
-    delay(200);
-  }
-}
-
-void edgeSweepForward() {
-  for (int pin = 4; pin <= 13; pin++) {
-    digitalWrite(pin, HIGH);
-    delay(100);
-    digitalWrite(pin, LOW);
-  }
-}
-
-void edgeSweepReverse() {
-  for (int pin = 13; pin >= 4; pin--) {
-    digitalWrite(pin, HIGH);
-    delay(100);
-    digitalWrite(pin, LOW);
+    delay(100); // Originally 200
   }
 }
 
@@ -56,32 +55,66 @@ void eyeFlicker() {
   for (int i = 0; i < 8; i++) {
     digitalWrite(2, i % 2);
     digitalWrite(3, (i + 1) % 2);
-    delay(50);
+    delay(25); // Originally 50
   }
   digitalWrite(2, LOW);
   digitalWrite(3, LOW);
-}
-
-void edgePulse() {
-  for (int i = 0; i < 2; i++) {
-    for (int pin = 4; pin <= 13; pin++) {
-      digitalWrite(pin, HIGH);
-    }
-    delay(300);
-    for (int pin = 4; pin <= 13; pin++) {
-      digitalWrite(pin, LOW);
-    }
-    delay(300);
-  }
 }
 
 void eyeGlare() {
   digitalWrite(2, HIGH);
   digitalWrite(3, HIGH);
-  delay(600);
+  delay(300); // Originally 600
   digitalWrite(2, LOW);
   digitalWrite(3, LOW);
-  delay(200);
+  delay(100); // Originally 200
+}
+
+void blinkEyesBrief() {
+  digitalWrite(2, HIGH);
+  digitalWrite(3, HIGH);
+  delay(25); // Originally 50
+  digitalWrite(2, LOW);
+  digitalWrite(3, LOW);
+}
+
+// 🔁 Paired Sweep Pattern
+void edgeSweepForward() {
+  eyeBlink();
+
+  setPair(13, 12); blinkEyesBrief(); delay(100); setPair(13, 12, false); // Originally 200
+  setPair(4, 11);  blinkEyesBrief(); delay(100); setPair(4, 11, false);
+  setPair(5, 10);  blinkEyesBrief(); delay(100); setPair(5, 10, false);
+  setPair(6, 9);   blinkEyesBrief(); delay(100); setPair(6, 9, false);
+  setPair(7, 8);   blinkEyesBrief(); delay(100); setPair(7, 8, false);
+
+  eyeFlicker();
+}
+
+void edgeSweepReverse() {
+  eyeFlicker();
+
+  setPair(7, 8);   blinkEyesBrief(); delay(100); setPair(7, 8, false);
+  setPair(6, 9);   blinkEyesBrief(); delay(100); setPair(6, 9, false);
+  setPair(5, 10);  blinkEyesBrief(); delay(100); setPair(5, 10, false);
+  setPair(4, 11);  blinkEyesBrief(); delay(100); setPair(4, 11, false);
+  setPair(13, 12); blinkEyesBrief(); delay(100); setPair(13, 12, false);
+}
+
+// 💡 Other Edge Light Effects
+void edgePulse() {
+  for (int i = 0; i < 2; i++) {
+    for (int pin = 4; pin <= 13; pin++) {
+      digitalWrite(pin, HIGH);
+    }
+    blinkEyesBrief();
+    delay(150); // Originally 300
+    for (int pin = 4; pin <= 13; pin++) {
+      digitalWrite(pin, LOW);
+    }
+    blinkEyesBrief();
+    delay(150);
+  }
 }
 
 void sparkleChase() {
@@ -89,7 +122,8 @@ void sparkleChase() {
     for (int pin = 4; pin <= 13; pin += 2) {
       digitalWrite(pin, HIGH);
     }
-    delay(150);
+    blinkEyesBrief();
+    delay(75); // Originally 150
     for (int pin = 4; pin <= 13; pin += 2) {
       digitalWrite(pin, LOW);
     }
@@ -97,39 +131,41 @@ void sparkleChase() {
     for (int pin = 5; pin <= 13; pin += 2) {
       digitalWrite(pin, HIGH);
     }
-    delay(150);
+    blinkEyesBrief();
+    delay(75);
     for (int pin = 5; pin <= 13; pin += 2) {
       digitalWrite(pin, LOW);
     }
   }
 }
 
-// NEW: Alternating even/odd border flashes
 void alternatingFlash() {
   for (int i = 0; i < 4; i++) {
     for (int pin = 4; pin <= 13; pin++) {
-      if ((pin % 2) == 0) digitalWrite(pin, HIGH); else digitalWrite(pin, LOW);
+      digitalWrite(pin, (pin % 2 == 0) ? HIGH : LOW);
     }
-    delay(200);
+    blinkEyesBrief();
+    delay(100); // Originally 200
+
     for (int pin = 4; pin <= 13; pin++) {
-      if ((pin % 2) == 1) digitalWrite(pin, HIGH); else digitalWrite(pin, LOW);
+      digitalWrite(pin, (pin % 2 != 0) ? HIGH : LOW);
     }
-    delay(200);
-    for (int pin = 4; pin <= 13; pin++) digitalWrite(pin, LOW);
+    blinkEyesBrief();
+    delay(100);
+
+    for (int pin = 4; pin <= 13; pin++) {
+      digitalWrite(pin, LOW);
+    }
   }
 }
 
-// NEW: Random sparkle effect – half twinkle, half dark
 void twinklingStars() {
   for (int i = 0; i < 10; i++) {
     for (int pin = 4; pin <= 13; pin++) {
-      if (random(2) == 0) {
-        digitalWrite(pin, HIGH);
-      } else {
-        digitalWrite(pin, LOW);
-      }
+      digitalWrite(pin, random(2) == 0 ? HIGH : LOW);
     }
-    delay(150);
+    blinkEyesBrief();
+    delay(75); // Originally 150
   }
   for (int pin = 4; pin <= 13; pin++) digitalWrite(pin, LOW);
 }
